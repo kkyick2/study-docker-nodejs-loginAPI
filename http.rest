@@ -1,0 +1,42 @@
+### get all posts
+GET http://172.16.22.201:3001/api/v1/posts
+
+### get a post
+GET http://172.16.22.201:3001/api/v1/posts/63f38e1777628e8aa9369a1e
+
+### create post
+POST http://172.16.22.201:3001/api/v1/posts
+{
+    "title": "post8",
+    "body": "body of post 8"
+}
+
+### Update post
+PATCH http://172.16.22.201:3001/api/v1/posts/63f38e1777628e8aa9369a1e
+content-type: application/json
+
+{
+    "title": "post1 update",
+    "body": "body of post 1"
+}
+
+### Delete post
+DELETE http://172.16.22.201:3001/api/v1/posts/63f0fc8aebe6900e80742b8b
+
+### user signup
+POST http://172.16.22.201:3001/api/v1/users/signup
+content-type: application/json
+
+{
+    "username": "user1",
+    "password": "user1pw"
+}
+
+### user login
+POST http://172.16.22.201:3001/api/v1/users/login
+content-type: application/json
+
+{
+    "username": "user1",
+    "password": "user1pw"
+}

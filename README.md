@@ -182,7 +182,7 @@ services:
 ```sh
 docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 docker exec -it study-docker-nodejs-loginapi_mongo_1 sh
-mongosh -u "root" -p "P@ssw0rd123"
+mongosh -u "root" -p "Passw0rd"
 db
 show dbs
 use mydb
@@ -346,17 +346,6 @@ npm install redis connect-redis express-session
 #-V renew volume, same with down and up again
 docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d -V 
 ```
-
-index.js
-```js
-const session = require("express-session");
-const redis = require("redis");
-let RedisStore = require("connect-redis")(session);
-
-//...etc
-
-```
-
 docker-compose.dev.yml: add redis secret SESSION_SECRET
 ```yml
 version: "3"
@@ -377,11 +366,92 @@ services:
     command: npm run dev
 ```
 
-```sh
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+index.js
+```js
+const { createClient } = require("redis")
+let RedisStore = require("connect-redis")(session);
+let redisClient = createClient({ 
+  url: REDIS_URL + ":"+ REDIS_PORT,
+  legacyMode: true 
+})
+redisClient.connect().catch(console.error)
+app.use(
+  session({
+    store: new RedisStore({ client: redisClient }),
+    secret: SESSION_SECRET,
+    cookie: {
+      secure: false,
+      resave: false,
+      saveUninitialized: false,
+      httpOnly: true,
+      maxAge: 30000,
+    },
+  })
+);
+```
+
+### Remarks
+* redis3 vs redis4 connect method changed 
+* https://devpress.csdn.net/cloudnative/63055fa5c67703293080f6be.html
+```
+app     | Error: connect ECONNREFUSED 127.0.0.1:6379
+app     |     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1187:16)
+app     |   errno: -111,
+app     |   code: 'ECONNREFUSED',
+app     |   syscall: 'connect',
+app     |   address: '127.0.0.1',
+app     |   port: 6379
+app     | }
+```
+
+```js
+let redisClient = createClient({ 
+  url: REDIS_URL + ":"+ REDIS_PORT,
+  //url: 'redis://redis:6379'
+  legacyMode: true 
+})
 ```
 
 ```
 docker exec -it redis redis-cli
-KEYS *
+127.0.0.1:6379> KEYS *
+(empty array)
+
+// after a user login
+127.0.0.1:6379> KEYS *
+1) "sess:2_Vlr1o-a75bAxP3vSbfzrPbfORXJeW1"
+127.0.0.1:6379> GET "sess:2_Vlr1o-a75bAxP3vSbfzrPbfORXJeW1"
+"{\"cookie\":{\"originalMaxAge\":30000,\"expires\":\"2023-02-20T10:16:22.951Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"}}"
+
+// after a user signup
+127.0.0.1:6379> KEYS *
+1) "sess:hteGx9M6UfcBfuUiJU2Me6YkqSIyDgyn"
+127.0.0.1:6379> GET "sess:hteGx9M6UfcBfuUiJU2Me6YkqSIyDgyn"
+"{\"cookie\":{\"originalMaxAge\":300000,\"expires\":\"2023-02-20T10:27:20.159Z\",\"secure\":false,\"httpOnly\":true,\"path\":\"/\"},\"user\":{\"username\":\"user2\",\"password\":\"$2a$12$Ek6S4ZG7Dyqry7qUb63.aenB6OyNSjm62nrJTsdYuqriTX4qGWwRK\",\"_id\":\"63f349dc46de15720f548e07\",\"__v\":0}}"
+127.0.0.1:6379> 
+```
+
+## middleware - check if user had login
+
+New folders and files
+```
+|--middleware
+-----authMiddleware.js
+```
+
+authMiddleware.js
+```js
+const protect = (req, res, next) => {
+    const { user } = req.session;
+    if (!user) {
+      return res.status(401).json({ 
+            status: "fail", 
+            message: "unauthorized" 
+        });
+    }
+    req.user = user;
+    next();
+  };
+
+  module.exports = protect;
 ```

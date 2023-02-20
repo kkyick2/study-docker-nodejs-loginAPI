@@ -1,8 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const session = require("express-session");
-const redis = require("redis");
-let RedisStore = require("connect-redis")(session);
 
 const {
   MONGO_USER,
@@ -14,11 +12,14 @@ const {
   REDIS_PORT,
 } = require("./config/config");
 
-let redisClient = redis.createClient({ 
-  host: REDIS_URL,
-  port: REDIS_PORT,
+const { createClient } = require("redis")
+let RedisStore = require("connect-redis")(session);
+
+let redisClient = createClient({ 
+  url: REDIS_URL + ":"+ REDIS_PORT,
   legacyMode: true 
-});
+})
+console.log("connect to redis: " + REDIS_URL + ":"+ REDIS_PORT)
 redisClient.connect().catch(console.error)
 
 const postRouter = require("./routes/postRoutes");
@@ -32,14 +33,13 @@ const connectWithRetry = () => {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("Connected to DB"))
+  .then(() => console.log("Connected to db: " + mongoURL))
   .catch((err) => {
     console.log(err);
     setTimeout(connectWithRetry, 5000);
   });
 };
 connectWithRetry();
-
 app.use(
   session({
     store: new RedisStore({ client: redisClient }),
@@ -49,7 +49,7 @@ app.use(
       resave: false,
       saveUninitialized: false,
       httpOnly: true,
-      maxAge: 30000,
+      maxAge: 60000, //60s
     },
   })
 );
