@@ -1,6 +1,9 @@
 version: "3"
 services:
-  node-app:
+  nginx:
+    ports:
+      - "3001:80"
+  node-loginapi:
     build:
       context: .
       args:

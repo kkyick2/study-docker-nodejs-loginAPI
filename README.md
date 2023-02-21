@@ -455,3 +455,74 @@ const protect = (req, res, next) => {
 
   module.exports = protect;
 ```
+---
+# PART5 - nginx
+
+* https://expressjs.com/en/guide/behind-proxies.html
+* remove docker-compose files that port no need to expose from container but only nginx
+* check below to see the load balance setting
+```
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --scale node-loginapi=2
+
+col@ub22201:~/projects/study-docker-nodejs-loginAPI$ docker ps -a
+CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS         PORTS                                   NAMES
+7a18713d7917   nginx:stable-alpine    "/docker-entrypoint.…"   5 minutes ago   Up 5 minutes   0.0.0.0:3001->80/tcp, :::3001->80/tcp   study-docker-nodejs-loginapi_nginx_1
+8390429a9ec7   node-loginapi:latest   "docker-entrypoint.s…"   5 minutes ago   Up 5 minutes   3001/tcp                                study-docker-nodejs-loginapi_node-loginapi_2
+6e53df329ef8   node-loginapi:latest   "docker-entrypoint.s…"   5 minutes ago   Up 5 minutes   3001/tcp                                study-docker-nodejs-loginapi_node-loginapi_1
+de397ec038ce   mongo:latest           "docker-entrypoint.s…"   5 minutes ago   Up 5 minutes   27017/tcp                               mongo
+97f1e85cd47b   redis:latest           "docker-entrypoint.s…"   5 minutes ago   Up 5 minutes   6379/tcp                                redis
+
+docker logs study-docker-nodejs-loginapi_node-loginapi_1 -f
+docker logs study-docker-nodejs-loginapi_node-loginapi_2 -f
+
+http://172.16.22.201:3001/api/v1
+```
+
+## cors
+* https://expressjs.com/en/resources/middleware/cors.html
+
+```
+npm install cors
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build -V #build image on a running volume, use -V to use new volume
+```
+
+```js
+const cors = require("cors");
+app.use(cors({}))
+```
+---
+# Part6 Deploy to production
+
+/home/col
+```sh
+
+|--apps
+-----loginapi
+|--.env
+
+```
+
+```sh
+col@ub22202:~$ ls -la
+total 48
+drwxr-x--- 6 col  col  4096 Feb 21 14:30 .
+drwxr-xr-x 3 root root 4096 Jun  7  2022 ..
+drwxrwxr-x 2 col  col  4096 Feb 21 14:30 apps
+-rw------- 1 col  col  1150 Feb 21 13:08 .bash_history
+-rw-r--r-- 1 col  col   220 Jan  6  2022 .bash_logout
+-rw-r--r-- 1 col  col  3771 Jan  6  2022 .bashrc
+drwx------ 2 col  col  4096 Jun  7  2022 .cache
+-rw-rw-r-- 1 col  col   151 Feb 21 14:30 env
+drwxrwxr-x 3 col  col  4096 Feb 21 12:41 .local
+-rw-r--r-- 1 col  col   807 Jan  6  2022 .profile
+drwx------ 2 col  col  4096 Jun  7  2022 .ssh
+-rw-r--r-- 1 col  col     0 Jul 22  2022 .sudo_as_admin_successful
+-rw------- 1 col  col   750 Feb 21 14:30 .viminfo
+col@ub22202:~$ 
+---
+sudo nano .profile
+set -o allexport; source /home/col/.env; set +o allexport;
+---
+exit
+printenv
+```
