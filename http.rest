@@ -7,8 +7,8 @@ GET http://172.16.22.201:3001/api/v1/posts/63f38e1777628e8aa9369a1e
 ### create post
 POST http://172.16.22.201:3001/api/v1/posts
 {
-    "title": "post8",
-    "body": "body of post 8"
+    "title": "post1",
+    "body": "body of post 1"
 }
 
 ### Update post

@@ -35,8 +35,9 @@ const connectWithRetry = () => {
   })
   .then(() => console.log("Connected to db: " + mongoURL))
   .catch((err) => {
+    console.log("Fail connect to db: " + mongoURL)
     console.log(err);
-    setTimeout(connectWithRetry, 5000);
+    setTimeout(connectWithRetry, 50000);
   });
 };
 connectWithRetry();
