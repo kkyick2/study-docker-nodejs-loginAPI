@@ -527,8 +527,14 @@ exit
 printenv
 ```
 
+```
+git clone https://github.com/kkyick2/study-docker-nodejs-loginAPI.git
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+### Deploy to production with hard way
 
 ```
-git clone xxxx
+git clone https://github.com/kkyick2/study-docker-nodejs-loginAPI.git
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
