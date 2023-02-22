@@ -11,7 +11,7 @@ services:
   node-loginapi:
 #   container_name: node-loginapi
     build: .
-    image: node-loginapi:latest
+    image: kkyick2/node-loginapi:latest
 #    ports:
 #     - "3001:3001"
     environment:

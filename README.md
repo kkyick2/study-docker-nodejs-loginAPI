@@ -492,7 +492,7 @@ app.use(cors({}))
 ```
 ---
 # Part6 Deploy to production
-### prod setup
+## prod setup
 /home/col
 ```sh
 
@@ -532,7 +532,13 @@ git clone https://github.com/kkyick2/study-docker-nodejs-loginAPI.git
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
-### Deploy to production with hard way
+## Deploy to production with hard way
+
+* dev: push changes to git
+* prod: git pull
+* prod: docker-compose up build
+* prod: build image
+* prod: rebuild node container
 
 dev environmrnt
 ```sh
@@ -542,7 +548,33 @@ git push
 ```
 
 prod environmrnt
-```
+```sh
+# pull
 git pull
+# opt1 - build image, it build all projects (bad option)
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# opt2 - build the app only, but it build with deps (bad option)
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build node-loginapi
+# opt3 - build the app only, with no deps
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build --no-deps node-loginapi
+```
+
+## Deploy to production with improved work flow
+* https://hub.docker.com
+* dev: build image on dev server
+* dev: push built image to docker hub
+* prod: docker hub pull image
+* prod: docker-compose up
+* prod: rebuild node container
+
+### docker hub
+* Create repository: kkyick2/node-loginapi
+
+dev environmrnt
+```sh
+docker login
+docker push
+# need rename the image to <username>/<repository>
+docker image tag <old_name> kkyick2/node-loginapi
+docker push kkyick2/node-loginapi
 ```
