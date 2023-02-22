@@ -492,7 +492,7 @@ app.use(cors({}))
 ```
 ---
 # Part6 Deploy to production
-
+### prod setup
 /home/col
 ```sh
 
@@ -534,7 +534,15 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 ### Deploy to production with hard way
 
+dev environmrnt
+```sh
+git add --all
+git commit -m "20230222 2000"
+git push
 ```
-git clone https://github.com/kkyick2/study-docker-nodejs-loginAPI.git
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+prod environmrnt
+```
+git pull
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```
