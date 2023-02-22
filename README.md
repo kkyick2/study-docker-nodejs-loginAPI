@@ -537,7 +537,7 @@ docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 dev environmrnt
 ```sh
 git add --all
-git commit -m "20230222 2000"
+git commit -m "20230222 2005"
 git push
 ```
 
